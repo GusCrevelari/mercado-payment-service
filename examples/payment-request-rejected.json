@@ -1,0 +1,9 @@
+{
+  "paymentAttemptId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+  "payload": {
+    "purchaseId": 12,
+    "correlationId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+    "amount": 49.90,
+    "currency": "BRL"
+  }
+}

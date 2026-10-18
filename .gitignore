@@ -1,0 +1,33 @@
+target/
+.flattened-pom.xml
+*.class
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+src/main/resources/application-local.*
+src/test/resources/application-local.*
+*.jks
+*.p12
+*.pem
+*.key
+
+# Logs and runtime artifacts
+*.log
+logs/
+*.pid
+hs_err_pid*
+replay_pid*
+
+# Operating system metadata
+.DS_Store
+Thumbs.db

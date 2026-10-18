@@ -1,0 +1,120 @@
+{
+  "info": {
+    "_postman_id": "cb2ca4c0-7e1c-4d28-9d0c-4e8df64016cb",
+    "name": "FIAP CP5 - Phase 2B Payments",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "bankBaseUrl", "value": "http://localhost:8091" },
+    { "key": "paymentBaseUrl", "value": "http://localhost:8090" },
+    { "key": "rabbitManagementUrl", "value": "http://localhost:15672" },
+    { "key": "rabbitUsername", "value": "guest" },
+    { "key": "rabbitPassword", "value": "guest" }
+  ],
+  "item": [
+    {
+      "name": "Health checks",
+      "item": [
+        {
+          "name": "Banco Tranquilo health",
+          "request": { "method": "GET", "url": "{{bankBaseUrl}}/actuator/health" }
+        },
+        {
+          "name": "Payment service health",
+          "request": { "method": "GET", "url": "{{paymentBaseUrl}}/actuator/health" }
+        }
+      ]
+    },
+    {
+      "name": "Banco Tranquilo REST",
+      "item": [
+        {
+          "name": "APPROVED - odd purchaseId",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentAttemptId\": \"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\",\n  \"purchaseId\": 11,\n  \"correlationId\": \"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb\",\n  \"amount\": 39.90,\n  \"currency\": \"BRL\"\n}"
+            },
+            "url": "{{bankBaseUrl}}/api/v1/payments"
+          }
+        },
+        {
+          "name": "REJECTED - even purchaseId",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentAttemptId\": \"cccccccc-cccc-cccc-cccc-cccccccccccc\",\n  \"purchaseId\": 12,\n  \"correlationId\": \"dddddddd-dddd-dddd-dddd-dddddddddddd\",\n  \"amount\": 49.90,\n  \"currency\": \"BRL\"\n}"
+            },
+            "url": "{{bankBaseUrl}}/api/v1/payments"
+          }
+        }
+      ]
+    },
+    {
+      "name": "RabbitMQ Management",
+      "item": [
+        {
+          "name": "Publish APPROVED request",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "{{rabbitUsername}}", "type": "string" },
+                { "key": "password", "value": "{{rabbitPassword}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"properties\": {\n    \"content_type\": \"application/json\",\n    \"delivery_mode\": 2,\n    \"message_id\": \"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\"\n  },\n  \"routing_key\": \"payment.request\",\n  \"payload\": \"{\\\"paymentAttemptId\\\":\\\"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\\\",\\\"payload\\\":{\\\"purchaseId\\\":11,\\\"correlationId\\\":\\\"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb\\\",\\\"amount\\\":39.90,\\\"currency\\\":\\\"BRL\\\"}}\",\n  \"payload_encoding\": \"string\"\n}"
+            },
+            "url": "{{rabbitManagementUrl}}/api/exchanges/%2F/mercado.payments/publish"
+          }
+        },
+        {
+          "name": "Publish REJECTED request",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "{{rabbitUsername}}", "type": "string" },
+                { "key": "password", "value": "{{rabbitPassword}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"properties\": {\n    \"content_type\": \"application/json\",\n    \"delivery_mode\": 2,\n    \"message_id\": \"cccccccc-cccc-cccc-cccc-cccccccccccc\"\n  },\n  \"routing_key\": \"payment.request\",\n  \"payload\": \"{\\\"paymentAttemptId\\\":\\\"cccccccc-cccc-cccc-cccc-cccccccccccc\\\",\\\"payload\\\":{\\\"purchaseId\\\":12,\\\"correlationId\\\":\\\"dddddddd-dddd-dddd-dddd-dddddddddddd\\\",\\\"amount\\\":49.90,\\\"currency\\\":\\\"BRL\\\"}}\",\n  \"payload_encoding\": \"string\"\n}"
+            },
+            "url": "{{rabbitManagementUrl}}/api/exchanges/%2F/mercado.payments/publish"
+          }
+        },
+        {
+          "name": "Read and acknowledge payment results",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "{{rabbitUsername}}", "type": "string" },
+                { "key": "password", "value": "{{rabbitPassword}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"count\": 10,\n  \"ackmode\": \"ack_requeue_false\",\n  \"encoding\": \"auto\",\n  \"truncate\": 50000\n}"
+            },
+            "url": "{{rabbitManagementUrl}}/api/queues/%2F/mercado.payment.results/get"
+          }
+        }
+      ]
+    }
+  ]
+}

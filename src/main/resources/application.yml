@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: mercado-payment-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: auto
+        default-requeue-rejected: false
+        prefetch: 10
+
+app:
+  payment:
+    bank-base-url: ${BANCO_TRANQUILO_URL:http://localhost:8091}
+    bank-timeout: ${BANCO_TRANQUILO_TIMEOUT:3s}
+    max-retries: ${PAYMENT_MAX_RETRIES:3}
+    retry-delay: ${PAYMENT_RETRY_DELAY:5s}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+server:
+  port: ${PORT:8090}

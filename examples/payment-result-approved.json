@@ -1,0 +1,10 @@
+{
+  "paymentAttemptId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "payload": {
+    "purchaseId": 11,
+    "correlationId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    "amount": 39.90,
+    "currency": "BRL",
+    "status": "APPROVED"
+  }
+}
